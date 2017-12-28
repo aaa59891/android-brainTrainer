@@ -19,12 +19,12 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout playLayout;
     private int answer;
     private int rightCount = 0;
-    private int wrongCount = 0;
+    private int totalCount = 0;
 
     private TextView tvNum1;
     private TextView tvNum2;
-    private TextView tvResult;
-    private TextView tvCounter;
+    private TextView tvScore;
+    private TextView tvTimer;
     private Button btnPlayAgain;
     private int timeLength = 5;
 
@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
         this.playLayout = findViewById(R.id.playLayout);
         this.tvNum1 = findViewById(R.id.tvNum1);
         this.tvNum2 = findViewById(R.id.tvNum2);
-        this.tvResult = findViewById(R.id.tvResult);
-        this.tvCounter = findViewById(R.id.tvCounter);
+        this.tvScore = findViewById(R.id.tvScore);
+        this.tvTimer = findViewById(R.id.tvTimer);
         this.btnPlayAgain = findViewById(R.id.btnPlayAgain);
 
         btnGo.setOnClickListener(goListener);
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.btn4)
         ));
 
-        for(Button btn : this.answerBtns){
+        for (Button btn : this.answerBtns) {
             btn.setOnClickListener(this.guessListener);
         }
 
@@ -67,92 +67,92 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener guessListener = (v) -> {
         Button btn = (Button) v;
         int guess = Integer.parseInt(btn.getText().toString());
-        if(guess == answer){
+        if (guess == answer) {
             this.rightCount++;
-        }else{
-            this.wrongCount++;
         }
+        this.totalCount++;
+
         setResultText();
         newQuestion();
     };
 
     private View.OnClickListener playAgainListener = (v) -> newGame();
 
-    private void newGame(){
-        if(this.btnPlayAgain != null){
+    private void newGame() {
+        if (this.btnPlayAgain != null) {
             this.btnPlayAgain.setVisibility(View.INVISIBLE);
         }
         new NewGameCounter(timeLength * 1000 + 100, 1000).start();
-        this.wrongCount = 0;
+        this.totalCount = 0;
         this.rightCount = 0;
         setResultText();
         setAnswerEnable(true);
         newQuestion();
     }
 
-    private void newQuestion(){
+    private void newQuestion() {
         int range = 100;
-        if(this.answerBtns == null || this.answerBtns.size() == 0){
+        if (this.answerBtns == null || this.answerBtns.size() == 0) {
             return;
         }
 
-        int randIndex = (int)(Math.random() * this.answerBtns.size());
-        int num1 = (int)(Math.random() * range);
-        int num2 = (int)(Math.random() * range);
+        int randIndex = (int) (Math.random() * this.answerBtns.size());
+        int num1 = (int) (Math.random() * range);
+        int num2 = (int) (Math.random() * range);
 
         answer = num1 + num2;
         setTvText(tvNum1, String.valueOf(num1));
         setTvText(tvNum2, String.valueOf(num2));
 
-        for(int i = 0; i < this.answerBtns.size(); i++){
+        for (int i = 0; i < this.answerBtns.size(); i++) {
             Button btn = this.answerBtns.get(i);
-            if(i == randIndex){
+            if (i == randIndex) {
                 btn.setText(String.valueOf(answer));
                 continue;
             }
-            int random ;
-            while((random = (int)(Math.random() * range * 2 + 1)) == answer){
-                randIndex = (int)(Math.random() * range * 2 + 1);
+            int random;
+            while ((random = (int) (Math.random() * range * 2 + 1)) == answer) {
+                randIndex = (int) (Math.random() * range * 2 + 1);
             }
             btn.setText(String.valueOf(random));
         }
     }
 
 
-    private void setTvText(TextView tv, String text){
-        if(tv == null){
+    private void setTvText(TextView tv, String text) {
+        if (tv == null) {
             return;
         }
         tv.setText(text);
     }
 
-    private class NewGameCounter extends CountDownTimer{
-        public NewGameCounter(long millisInFuture, long countDownInterval) {
+    private class NewGameCounter extends CountDownTimer {
+        NewGameCounter(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
-            tvCounter.setText(String.format("%ds", (int)millisUntilFinished / 1000));
+            tvTimer.setText(String.format("%ds", (int) millisUntilFinished / 1000));
         }
 
         @Override
         public void onFinish() {
-            tvCounter.setText("0s");
-            if(btnPlayAgain != null){
+//            tvTimer.setText("0s");
+            if (btnPlayAgain != null) {
                 btnPlayAgain.setVisibility(View.VISIBLE);
             }
             setAnswerEnable(false);
         }
     }
 
-    private void setAnswerEnable(boolean enable){
-        for(Button btn : this.answerBtns){
+    private void setAnswerEnable(boolean enable) {
+        for (Button btn : this.answerBtns) {
             btn.setEnabled(enable);
         }
     }
 
-    private void setResultText(){
-        this.tvResult.setText(String.format("%d/%d", this.rightCount, this.wrongCount));
+    private void setResultText() {
+        this.tvScore.setText(String.format("%d/%d", this.rightCount, this.totalCount));
     }
 }
